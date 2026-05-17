@@ -54,7 +54,20 @@ func (h *AdminHandler) UIUser(c *gin.Context) {
 		return
 	}
 
-	Render(c, http.StatusOK, admin.UserDetails(*user))
+	// Fetch licenses if user is a seller
+	licenses := []string{}
+	if user.IsSeller {
+		seller, err := h.AdminService.GetSellerByUserID(uint(userID))
+		if err == nil && seller != nil {
+			// Reuse service method if it exists, otherwise generate manually
+			signedLicenses, err := h.AdminService.GetSellerLicenses(seller.ID)
+			if err == nil {
+				licenses = signedLicenses
+			}
+		}
+	}
+
+	Render(c, http.StatusOK, admin.UserDetails(*user, licenses))
 }
 
 func (h *AdminHandler) UIPendingProducts(c *gin.Context) {

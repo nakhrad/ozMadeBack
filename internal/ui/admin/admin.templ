@@ -97,7 +97,7 @@ templ UserList(users []models.User) {
 	}
 }
 
-templ UserDetails(user models.User) {
+templ UserDetails(user models.User, licenses []string) {
 	@Layout("User Details: " + user.Name) {
 		<div class="mb-6 flex items-center gap-4">
 			<a href="/admin/ui/users" class="btn btn-ghost btn-sm">
@@ -197,6 +197,27 @@ templ UserDetails(user models.User) {
 						</div>
 					</div>
 				</div>
+
+				if user.IsSeller {
+					<div class="card bg-base-100 shadow p-6 md:col-span-2">
+						<h3 class="font-bold border-b pb-2 mb-4">Seller Licenses</h3>
+						if len(licenses) > 0 {
+							<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+								for i, url := range licenses {
+									<div class="border rounded p-2 flex flex-col items-center">
+										<div class="mb-2 text-xs font-bold uppercase">License #{ strconv.Itoa(i+1) }</div>
+										<a href={ templ.URL(url) } target="_blank" class="btn btn-sm btn-outline btn-primary">View Document</a>
+									</div>
+								}
+							</div>
+						} else {
+							<div class="alert alert-warning">
+								<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+								<span>No licenses uploaded yet.</span>
+							</div>
+						}
+					</div>
+				}
 			</div>
 		</div>
 	}

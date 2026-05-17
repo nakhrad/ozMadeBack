@@ -41,6 +41,18 @@ func (s *AdminService) GetUserByID(userID uint) (*models.User, error) {
 	return &user, nil
 }
 
+// GetSellerByUserID fetches a single seller by UserID
+func (s *AdminService) GetSellerByUserID(userID uint) (*models.Seller, error) {
+	var seller models.Seller
+	if err := s.DB.Where("user_id = ?", userID).First(&seller).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil // Not a seller
+		}
+		return nil, err
+	}
+	return &seller, nil
+}
+
 // CreateUser creates a new user
 func (s *AdminService) CreateUser(user *models.User) error {
 	return s.DB.Create(user).Error
