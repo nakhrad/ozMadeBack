@@ -8,7 +8,7 @@ import (
 
 templ Layout(title string) {
 	<!DOCTYPE html>
-	<html lang="en" data-theme="light">
+	<html lang="en" data-theme="ozmade">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -16,19 +16,55 @@ templ Layout(title string) {
 			<link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css"/>
 			<script src="https://cdn.tailwindcss.com"></script>
 			<script src="https://unpkg.com/htmx.org@1.9.11"></script>
+			<script>
+				tailwind.config = {
+					theme: {
+						extend: {
+							colors: {
+								'orange-primary': '#FF9800',
+								'orange-secondary': '#FFB74D',
+								'orange-tertiary': '#FFE0B2',
+								'dark-navy': '#0D0F2C',
+							}
+						}
+					},
+					daisyui: {
+						themes: [
+							{
+								ozmade: {
+									"primary": "#FF9800",
+									"secondary": "#FFB74D",
+									"accent": "#FFE0B2",
+									"neutral": "#0D0F2C",
+									"base-100": "#FFFFFF",
+									"base-200": "#FBFBFB",
+									"base-300": "#EEEEEE",
+									"info": "#3ABFF8",
+									"success": "#36D399",
+									"warning": "#FBBD23",
+									"error": "#F87272",
+								},
+							},
+						],
+					},
+				}
+			</script>
+			<style>
+				.sidebar-active { background-color: #FF9800 !important; color: white !important; }
+			</style>
 		</head>
-		<body class="min-h-screen bg-base-200">
+		<body class="min-h-screen bg-base-200 text-[#1A1A1A]">
 			<div class="drawer lg:drawer-open">
 				<input id="admin-drawer" type="checkbox" class="drawer-toggle"/>
 				<div class="drawer-content flex flex-col">
 					<!-- Navbar -->
-					<div class="w-full navbar bg-base-100 lg:hidden">
+					<div class="w-full navbar bg-base-100 lg:hidden shadow-sm">
 						<div class="flex-none">
 							<label for="admin-drawer" class="btn btn-square btn-ghost">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
 							</label>
 						</div>
-						<div class="flex-1 px-2 mx-2">OzMade Admin</div>
+						<div class="flex-1 px-2 mx-2 font-bold text-dark-navy">OzMade Admin</div>
 					</div>
 					<!-- Page Content -->
 					<main class="p-4 lg:p-8">
@@ -38,13 +74,14 @@ templ Layout(title string) {
 				<!-- Sidebar -->
 				<div class="drawer-side">
 					<label for="admin-drawer" class="drawer-overlay"></label>
-					<ul class="menu p-4 w-80 min-h-full bg-base-100 text-base-content gap-2">
-						<li class="mb-4 text-xl font-bold px-4 text-primary">OzMade Admin</li>
-						<li><a href="/admin/ui/users" class="active:bg-primary">User Management</a></li>
-						<li><a href="/admin/ui/products/pending" class="active:bg-primary">Product Reviews</a></li>
-						<li><a href="/admin/ui/reports" class="active:bg-primary">Reports</a></li>
+					<ul class="menu p-4 w-80 min-h-full bg-dark-navy text-white gap-2">
+						<li class="mb-8 mt-4 px-4 text-2xl font-black tracking-tighter text-orange-primary italic">OzMade Admin</li>
+						<li><a href="/admin/ui/users" class="hover:bg-white/10 active:bg-orange-primary focus:bg-orange-primary">User Management</a></li>
+						<li><a href="/admin/ui/products/pending" class="hover:bg-white/10 active:bg-orange-primary focus:bg-orange-primary">Product Reviews</a></li>
+						<li><a href="/admin/ui/reports" class="hover:bg-white/10 active:bg-orange-primary focus:bg-orange-primary">Reports</a></li>
 						<div class="mt-auto">
-							<li><a href="/" class="text-error">Exit Admin</a></li>
+							<div class="divider before:bg-white/10 after:bg-white/10"></div>
+							<li><a href="/" class="text-error hover:bg-error/20">Exit Admin</a></li>
 						</div>
 					</ul>
 				</div>
