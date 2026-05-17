@@ -58,6 +58,7 @@ The backend is designed to run on modern cloud infrastructure, leveraging the fo
 *   **Real-time Communication**:
     *   **WebSockets**: Bi-directional communication for instant chat messaging.
     *   **Firebase Cloud Messaging (FCM)**: Push notifications for orders and messages when the app is in the background.
+*   **Delivery Integration**: **CDEK API** for intercity delivery estimation and future order creation.
 
 ## Database Schema
 
@@ -106,6 +107,7 @@ Transaction records between buyers and sellers.
 *   `status`: Lifecycle state ("PENDING_SELLER", "CONFIRMED", "READY_OR_SHIPPED", "COMPLETED", "CANCELLED")
 *   `delivery_type`: "PICKUP", "MY_DELIVERY", or "INTERCITY"
 *   `confirm_code`: 4-digit security code for order hand-off
+*   `intercity_delivery`: JSON object containing details for intercity delivery (provider, price, dates, addresses, package info, receiver details).
 
 ### Chats & Messages
 *   **Chats**: Tracks conversations per product between a specific buyer and seller. Supports "Soft Delete" (hiding for one party).
@@ -190,6 +192,52 @@ Creates a new order. Requires `product_id`, `quantity`, and `delivery_type`.
 
 #### `DELETE /chats/:chat_id`
 Soft-deletes a chat. The conversation will no longer appear in your list, but remains for the other party.
+
+#### Delivery Endpoints
+
+##### `POST /delivery/intercity/estimate`
+Estimates the cost and delivery time for an intercity shipment using the CDEK API.
+
+*   **Request Body**:
+    ```json
+    {
+      "fromAddress": {
+        "city": "Алматы",
+        "fullAddress": "Алматы, ул. Абая 10",
+        "latitude": 43.238949,
+        "longitude": 76.889709
+      },
+      "toAddress": {
+        "city": "Астана",
+        "fullAddress": "Астана, пр. Кабанбай Батыра 20",
+        "latitude": 51.160522,
+        "longitude": 71.47036
+      },
+      "package": {
+        "weightGrams": 2000,
+        "heightCm": 40,
+        "widthCm": 30,
+        "depthCm": 20
+      }
+    }
+    ```
+*   **Response Body**:
+    ```json
+    {
+      "provider": "CDEK",
+      "price": 3500,
+      "currency": "₸",
+      "minDays": 2,
+      "maxDays": 4,
+      "estimatedDateFrom": "2026-05-20",
+      "estimatedDateTo": "2026-05-22"
+    }
+    ```
+*   **Validation**:
+    *   `fromAddress.city`, `toAddress.city`, `fromAddress.fullAddress`, `toAddress.fullAddress` are required.
+    *   `package.weightGrams`, `package.heightCm`, `package.widthCm`, `package.depthCm` must be positive integers.
+    *   Origin and destination cities cannot be the same.
+    *   `latitude` and `longitude` are optional.
 
 ---
 
