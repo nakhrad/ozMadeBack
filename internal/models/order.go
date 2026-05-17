@@ -24,10 +24,10 @@ const (
 
 // AddressDetails struct for intercity delivery
 type AddressDetails struct {
-	City        string  `json:"city"`
-	FullAddress string  `json:"fullAddress"`
-	Latitude    float64 `json:"latitude"`
-	Longitude   float64 `json:"longitude"`
+	City        string   `json:"city"`
+	FullAddress string   `json:"fullAddress"`
+	Latitude    *float64 `json:"latitude,omitempty"`  // Changed to pointer
+	Longitude   *float64 `json:"longitude,omitempty"` // Changed to pointer
 }
 
 // PackageDetails struct for intercity delivery

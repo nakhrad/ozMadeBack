@@ -196,8 +196,8 @@ func CreateOrder(c *gin.Context) {
 			}
 			if finalShippingLat == nil || finalShippingLng == nil {
 				// Use receiver address coordinates as shipping coordinates if not provided separately
-				finalShippingLat = &intercityDetails.ToAddress.Latitude
-				finalShippingLng = &intercityDetails.ToAddress.Longitude
+				finalShippingLat = intercityDetails.ToAddress.Latitude
+				finalShippingLng = intercityDetails.ToAddress.Longitude
 			}
 		}
 	default:
