@@ -43,6 +43,8 @@ templ Layout(title string) {
 									"success": "#36D399",
 									"warning": "#FBBD23",
 									"error": "#F87272",
+									"neutral-content": "#FFFFFF",
+									"base-content": "#1A1A1A",
 								},
 							},
 						],
@@ -53,7 +55,7 @@ templ Layout(title string) {
 				.sidebar-active { background-color: #FF9800 !important; color: white !important; }
 			</style>
 		</head>
-		<body class="min-h-screen bg-base-200 text-[#1A1A1A]">
+		<body class="min-h-screen bg-base-200 text-base-content">
 			<div class="drawer lg:drawer-open">
 				<input id="admin-drawer" type="checkbox" class="drawer-toggle"/>
 				<div class="drawer-content flex flex-col">
