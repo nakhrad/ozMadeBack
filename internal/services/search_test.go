@@ -47,25 +47,76 @@ func TestBuildSearchBodyIncludesQueryAndFilters(t *testing.T) {
 	}
 }
 
-func TestBuildSearchBodyUsesDefaults(t *testing.T) {
+func TestBuildSearchBodyEdgeCases(t *testing.T) {
 	service := &ProductSearchService{}
 
-	body, err := service.buildSearchBody(ProductSearchParams{})
-	if err != nil {
-		t.Fatalf("buildSearchBody returned error: %v", err)
+	t.Run("Negative offset and limit", func(t *testing.T) {
+		body, _ := service.buildSearchBody(ProductSearchParams{Limit: -1, Offset: -5})
+		var payload map[string]any
+		json.Unmarshal(body, &payload)
+		if payload["size"].(float64) != 20 {
+			t.Errorf("expected default size 20, got %v", payload["size"])
+		}
+		if payload["from"].(float64) != 0 {
+			t.Errorf("expected offset 0, got %v", payload["from"])
+		}
+	})
+
+	t.Run("Extreme limit", func(t *testing.T) {
+		body, _ := service.buildSearchBody(ProductSearchParams{Limit: 1000})
+		var payload map[string]any
+		json.Unmarshal(body, &payload)
+		if payload["size"].(float64) != 100 {
+			t.Errorf("expected max size 100, got %v", payload["size"])
+		}
+	})
+
+	t.Run("Only filters no query", func(t *testing.T) {
+		body, _ := service.buildSearchBody(ProductSearchParams{Type: "furniture"})
+		var payload map[string]any
+		json.Unmarshal(body, &payload)
+		query := payload["query"].(map[string]any)["bool"].(map[string]any)
+		if _, ok := query["should"]; ok {
+			t.Fatal("did not expect should clause when query is empty")
+		}
+		filters := query["filter"].([]any)
+		if len(filters) != 1 {
+			t.Errorf("expected 1 filter, got %d", len(filters))
+		}
+	})
+}
+
+func TestParseSearchFloat(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected *float64
+		wantErr  bool
+	}{
+		{"10.5", float64Ptr(10.5), false},
+		{" 20 ", float64Ptr(20.0), false},
+		{"", nil, false},
+		{"  ", nil, false},
+		{"invalid", nil, true},
 	}
 
-	var payload map[string]any
-	if err := json.Unmarshal(body, &payload); err != nil {
-		t.Fatalf("failed to decode search body: %v", err)
+	for _, tt := range tests {
+		got, err := ParseSearchFloat(tt.input)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("ParseSearchFloat(%q) error = %v, wantErr %v", tt.input, err, tt.wantErr)
+			continue
+		}
+		if tt.expected == nil {
+			if got != nil {
+				t.Errorf("ParseSearchFloat(%q) = %v, want nil", tt.input, *got)
+			}
+		} else {
+			if got == nil || *got != *tt.expected {
+				t.Errorf("ParseSearchFloat(%q) = %v, want %v", tt.input, got, *tt.expected)
+			}
+		}
 	}
+}
 
-	if payload["size"].(float64) != 20 {
-		t.Fatalf("expected default size 20, got %v", payload["size"])
-	}
-
-	query := payload["query"].(map[string]any)["bool"].(map[string]any)
-	if _, ok := query["should"]; ok {
-		t.Fatal("did not expect should clause for empty search")
-	}
+func float64Ptr(f float64) *float64 {
+	return &f
 }
